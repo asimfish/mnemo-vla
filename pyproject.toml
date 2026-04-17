@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mnemo-vla"
+version = "0.1.0"
+description = "Unified memory framework for vision-language-action models (MNEMO-VLA)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "MNEMO-VLA authors" },
+]
+keywords = ["robotics", "vla", "memory", "vision-language-action", "manipulation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+faiss = ["faiss-cpu>=1.7"]
+embeddings = ["sentence-transformers>=2.2"]
+tests = ["pytest>=7"]
+dev = ["pytest>=7", "ruff", "mypy"]
+
+[project.urls]
+Homepage = "https://github.com/asimplefish/mnemo-vla"
+Documentation = "https://github.com/asimplefish/mnemo-vla/blob/main/README.md"
+Issues = "https://github.com/asimplefish/mnemo-vla/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mnemo*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
