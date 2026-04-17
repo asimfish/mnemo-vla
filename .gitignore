@@ -58,3 +58,6 @@ paper/*.log
 paper/*.out
 paper/*.synctex.gz
 paper/*.toc
+
+# Root-level runtime files
+mnemo_bench_radar_demo.png

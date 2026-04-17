@@ -1,51 +1,57 @@
 % MNEMO-VLA: AAAI 2027 submission draft
-% Target format: aaai27.sty (to be dropped in before camera-ready)
-% For now we use the article class so the source compiles anywhere.
+% Uses the AAAI 2026 stylesheet as a placeholder (AAAI 2027 format is
+% expected to be similar). The sty file is the official version from
+% aaai.org/authorkit26 and must not be modified.
 
-\documentclass[11pt,letterpaper]{article}
+\documentclass[letterpaper]{article}
 
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,amsthm}
+% --- AAAI style ---
+\usepackage[submission]{aaai2026}
+
+% --- Core packages (allowed by AAAI author kit) ---
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
-\usepackage{hyperref}
 \usepackage{url}
 \usepackage{xcolor}
-\usepackage{tikz}
-\usetikzlibrary{positioning, arrows.meta}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
-\hypersetup{
-  colorlinks=true,
-  linkcolor=blue!70!black,
-  citecolor=blue!50!black,
-  urlcolor=teal!70!black,
-}
-
 \newcommand{\method}{MNEMO-VLA}
 \newcommand{\methodShort}{MNEMO}
+
+% --- PDF metadata (required by AAAI) ---
+\pdfinfo{
+/TemplateVersion (2026.1)
+}
+
+\setcounter{secnumdepth}{2}
 
 \title{\method: A Unified Three-Tier Memory Framework for\\
        Vision-Language-Action Models}
 
 \author{
   Anonymous Authors \\
-  Affiliation Withheld \\
-  \texttt{anonymous@example.com}
+  Affiliation Withheld
 }
 
-\date{AAAI 2027 Submission Draft}
+\affiliations{
+  Anonymous Institution\\
+  \texttt{anonymous@example.com}
+}
 
 \begin{document}
 \maketitle
 
-% ============================================
 \begin{abstract}
 \input{sections/00_abstract}
 \end{abstract}
 
-% ============================================
 \input{sections/01_introduction}
 \input{sections/02_related_work}
 \input{sections/03_method}
@@ -53,8 +59,7 @@
 \input{sections/05_discussion}
 \input{sections/06_conclusion}
 
-% ============================================
-\bibliographystyle{plain}
+\bibliographystyle{aaai2026}
 \bibliography{references}
 
 \appendix
