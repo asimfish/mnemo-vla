@@ -7,14 +7,21 @@ robot policies **hot / cold / persistent** memory — short-term video,
 long-term language, and cross-session retrieval — in a single, composable
 Python package.
 
-> **Status**: v0.1 (alpha). The skeleton ships two reusable components
-> (semi-structured language memory + persistent cross-session store) plus
-> a ready-to-apply patch for the [Mem-0 / RMBench planner](
-> https://github.com/robotwin-Platform/rmbench).
+> **Status**: v0.2 (pre-AAAI-2027 draft). The skeleton ships:
 >
-> The full architecture (tactile stream, joint memory-action training,
-> MNEMO-Bench) is described in the research proposal under
-> `docs/proposal.md`.
+> - Semi-structured language memory with lossless text round-trip.
+> - Persistent cross-session store (FAISS-ready, numpy-backed) with
+>   pluggable embedders (HashingEmbedder shipped; SentenceTransformer
+>   optional; custom encoders plug in via a Protocol).
+> - A synthetic retrieval benchmark (CPU, <1 s) that validates the
+>   infrastructure: **Recall@1=75%, Recall@5=95%** on 20 paraphrased
+>   queries vs. 20 synthetic episodes.
+> - A ready-to-apply patch for the [Mem-0 / RMBench planner](
+>   https://github.com/robotwin-Platform/rmbench).
+> - LaTeX paper draft (`paper/`) targeting AAAI 2027.
+>
+> Full architecture (tactile stream, joint memory-action training,
+> MNEMO-Bench) is described in `docs/proposal.md` and `paper/`.
 
 ---
 
@@ -132,15 +139,31 @@ docs/                         # Architecture, roadmap, paper index
 
 ```bash
 pip install -e .[tests]
-pytest -q
+pytest -q    # 20 tests, all pass in <1 s
 ```
 
-The entire test suite runs on CPU in a few seconds and covers:
+Coverage:
 
-* Memory serialization + text round-trip
-* FAISS-free persistent store persistence & retrieval
-* Rule-based episode summarization
-* Mem-0 prompt-injection helpers
+* Memory serialization + text round-trip (4 tests)
+* Persistent store persistence & retrieval (7 tests)
+* Rule-based episode summarization (2 tests)
+* Mem-0 prompt-injection helpers (4 tests)
+* Synthetic retrieval benchmark (5 tests)
+
+Plus a runnable benchmark:
+
+```bash
+PYTHONPATH=. python examples/retrieval_benchmark.py
+```
+
+Sample output (HashingEmbedder, dim=128, 20 episodes / 20 queries):
+
+```
+Queries evaluated : 20
+Recall@1          : 75.00%
+Recall@3          : 90.00%
+Recall@5          : 95.00%
+```
 
 ---
 

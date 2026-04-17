@@ -1,0 +1,162 @@
+\section{Method: The \method\ Framework}
+\label{sec:method}
+
+We organize memory for VLAs along two orthogonal axes: \emph{time
+scale} (hot/cold/persistent) and \emph{modality} (video, text,
+retrieval-embedding). Section~\ref{sec:method:architecture} gives the
+high-level architecture. Sections~\ref{sec:method:lang},
+\ref{sec:method:persistent}, and \ref{sec:method:integration} detail
+the language memory, the persistent store, and the planner
+integration, respectively.
+
+\subsection{Architecture}
+\label{sec:method:architecture}
+
+Figure~\ref{fig:architecture} shows the three-tier design.
+
+\begin{itemize}
+\item \textbf{Hot memory (seconds)}: a short-term video/sensor buffer
+      such as the sliding window of Mem-0 or the sparse-attention
+      video encoder of MEM. We intentionally do \emph{not}
+      reimplement hot memory; \method\ composes with whichever hot
+      memory the underlying VLA provides.
+\item \textbf{Cold memory (minutes)}: a semi-structured language
+      memory expressed as human-readable text (see
+      Section~\ref{sec:method:lang}). The cold memory is updated at
+      subtask boundaries by the high-level planner.
+\item \textbf{Persistent memory (days)}: a FAISS-style vector store
+      of \emph{episode summaries} indexed by text embedding
+      (Section~\ref{sec:method:persistent}). New episodes query the
+      store on start-up and archive their final summary on
+      termination.
+\end{itemize}
+
+All three tiers reach the underlying VLA backbone through a single
+touchpoint: the planner prompt. The planner consumes the current
+cold memory alongside the recent hot memory tokens and any retrieved
+persistent facts, and produces (a) the next subtask and (b) an
+updated cold memory.
+
+\subsection{Semi-Structured Language Memory}
+\label{sec:method:lang}
+
+Our language memory schema is designed to be \emph{fully
+round-trippable}: the same object can be rendered as text for LLM
+consumption and parsed back into structured form for programmatic
+inspection. Each \texttt{Memory} object captures:
+
+{\small
+\begin{verbatim}
+[TASK]    <goal>
+[SESSION] <id>
+[SUBTASKS]
+  1. [X] <done subtask>
+  2. [>] <current subtask>
+  3. [ ] <pending subtask>
+[CROSS-SESSION]
+  - <fact> (source: <session>, conf=<0..1>)
+[FAILURES]
+  - <error> -> <intervention>
+\end{verbatim}
+}
+
+The status markers \texttt{[X]/[>]/[\,]/[!]} explicitly encode
+subtask state (done, current, pending, failed). Cross-session facts
+carry a provenance tag and a confidence score. Failures record both
+the error and the intervention taken. This schema is inspired by
+MEM's natural-language memory \cite{mem} but extends it with
+structural markers that support \emph{programmatic} operations:
+diffing, anomaly detection, and rule-based analysis.
+
+Crucially, the schema preserves the \emph{interpretability} lost in
+dense-embedding memories (MemoryVLA, ReMem-VLA). Practitioners can
+read the cold memory at any point in an episode to diagnose
+failures, and downstream tools can reason over it symbolically.
+
+\subsection{Persistent Cross-Session Memory}
+\label{sec:method:persistent}
+
+The persistent layer stores an \texttt{EpisodeSummary} object per
+completed episode, containing: session id, task, outcome
+(success/failure/partial), narrative, and a typed list of facts
+(object-location, task-outcome, failure-cause, user-preference).
+
+At episode start, the planner issues a text query---typically the
+global task goal---to retrieve the top-$K$ most similar past
+summaries. Results are formatted into a \texttt{<cross-session
+memory>} block that is concatenated into the planner prompt before
+the \texttt{<finished\_subtasks>} section. At episode end, the final
+cold memory is converted into a summary and persisted.
+
+\paragraph{Retrieval.}
+Summaries are embedded via a pluggable \texttt{Embedder} protocol.
+Our initial release ships two implementations:
+(i) \texttt{HashingEmbedder}, a zero-dependency deterministic hasher
+used for unit tests and minimal deployments;
+(ii) \texttt{SentenceTransformerEmbedder}, wrapping
+\texttt{sentence-transformers} for semantic quality.
+Replacing the embedder with a Qwen3-VL text encoder is a single
+class substitution. The store returns top-$K$ hits by cosine
+similarity; we rely on numpy for indexing at $N<50{,}000$
+summaries and recommend FAISS for larger scales.
+
+\paragraph{Update protocol.}
+A rule-based summarizer converts the final \texttt{Memory} of an
+episode into an \texttt{EpisodeSummary}. Completed subtasks become
+narrative bullets; failures become \texttt{failure\_cause} facts;
+task outcome is inferred from subtask statuses. An LLM-based
+summarizer (called once per episode, not per step) is the planned
+v0.3 upgrade; the rule-based variant suffices to validate the
+persistence layer.
+
+\subsection{Integration with Existing Memory-Aware VLAs}
+\label{sec:method:integration}
+
+\method\ is designed for \emph{incremental adoption}. Our primary
+integration target is Mem-0 \cite{rmbench}, chosen because its
+planner-executor hierarchy already mirrors our cold/hot distinction.
+Two edits suffice:
+
+\begin{enumerate}
+\item \texttt{MemoryMattersPlanner.\_\_init\_\_} gains a
+      \texttt{self.persistent\_store = MemoryStore(...)} attribute.
+\item \texttt{MemoryMattersPlanner.prepare\_qwen\_input} calls
+      \texttt{inject\_into\_prompt(...)} before returning, which
+      inserts a \texttt{<cross-session memory>} block into the Qwen
+      prompt.
+\end{enumerate}
+
+A third one-line hook in \texttt{MemoryMattersAgent.reset} invokes
+\texttt{summarize\_rule\_based} at episode end to persist the
+summary. No retraining is required for the integration to take
+effect: Qwen3-VL treats the injected block as additional context.
+
+The same pattern applies to MemER \cite{memer} and MemoryVLA
+\cite{memoryvla}, with minor adaptations documented in the
+release notes. For purely end-to-end VLAs (e.g., CronusVLA), the
+persistent memory can be surfaced through a separate high-level
+planner layered on top.
+
+\subsection{Training Considerations}
+\label{sec:method:training}
+
+The current release operates at inference time only. For training,
+we propose a joint objective combining action imitation, memory
+summary generation, and consistency between the two:
+
+\begin{equation}
+\mathcal{L} = \lambda_a \mathcal{L}_{\text{action}}
+            + \lambda_s \mathcal{L}_{\text{subtask}}
+            + \lambda_m \mathcal{L}_{\text{memory}}
+            + \lambda_c \mathcal{L}_{\text{consistency}},
+\label{eq:joint_loss}
+\end{equation}
+
+where $\mathcal{L}_{\text{memory}}$ is token-level cross-entropy over
+LLM-generated ground-truth summaries and
+$\mathcal{L}_{\text{consistency}}$ penalizes divergence between the
+action distribution conditioned on the predicted memory and that
+conditioned on the ground-truth memory. We view training as the
+next milestone once hot-memory integration is complete; the current
+paper establishes the memory primitives required to make such
+training meaningful.

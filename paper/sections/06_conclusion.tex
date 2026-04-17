@@ -1,0 +1,32 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented \method, a unified three-tier memory framework for
+vision-language-action models. By separating memory along
+\emph{time scale} (hot/cold/persistent) and \emph{modality}
+(video/text/retrieval), we expose a coherent abstraction that
+integrates with existing VLAs via small, documented patches rather
+than wholesale rewrites.
+
+Our initial release delivers two of the three tiers as a
+zero-dependency Python package: a semi-structured language memory
+schema that is both LLM-consumable and programmatically
+inspectable, and a persistent cross-session store backed by
+FAISS-ready retrieval. We demonstrate the framework's utility via
+a Mem-0 integration that requires only two code edits, and we
+propose MNEMO-Bench, a unified evaluation harness consolidating
+four existing memory benchmarks. The package is open-sourced under
+the MIT license, with 15 passing unit tests on CPU and a
+reproducible quickstart.
+
+We see three directions of future work. First, implementing the
+hot-memory tier with MEM-style video encoding and tactile fusion
+will enable end-to-end policy training. Second, the joint training
+objective proposed in Equation~\ref{eq:joint_loss} should be
+validated empirically; preliminary infrastructure is in place.
+Third, the MNEMO-Bench harness should be released with a public
+leaderboard to accelerate community adoption of standardized memory
+evaluation.
+
+Memory has been the quiet bottleneck in robotic manipulation for
+years; we hope \method\ lowers the cost of addressing it.

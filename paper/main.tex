@@ -1,0 +1,62 @@
+% MNEMO-VLA: AAAI 2027 submission draft
+% Target format: aaai27.sty (to be dropped in before camera-ready)
+% For now we use the article class so the source compiles anywhere.
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  citecolor=blue!50!black,
+  urlcolor=teal!70!black,
+}
+
+\newcommand{\method}{MNEMO-VLA}
+\newcommand{\methodShort}{MNEMO}
+
+\title{\method: A Unified Three-Tier Memory Framework for\\
+       Vision-Language-Action Models}
+
+\author{
+  Anonymous Authors \\
+  Affiliation Withheld \\
+  \texttt{anonymous@example.com}
+}
+
+\date{AAAI 2027 Submission Draft}
+
+\begin{document}
+\maketitle
+
+% ============================================
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+% ============================================
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_experiments}
+\input{sections/05_discussion}
+\input{sections/06_conclusion}
+
+% ============================================
+\bibliographystyle{plain}
+\bibliography{references}
+
+\appendix
+\input{sections/99_appendix}
+
+\end{document}

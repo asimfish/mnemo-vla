@@ -1,0 +1,82 @@
+\section{Introduction}
+\label{sec:intro}
+
+Vision-language-action models (VLAs) have become the dominant policy
+architecture for generalist robotic manipulation, with systems such as
+\textbf{$\pi_0$} \cite{pi0}, \textbf{$\pi_{0.5}$} \cite{pi05},
+\textbf{OpenVLA} \cite{openvla}, \textbf{RDT-1B} \cite{rdt1b} and
+\textbf{$\pi_{0.7}$} \cite{pi07} demonstrating impressive zero-shot
+generalization across embodiments and tasks. However, these models are
+almost universally \emph{Markovian}: each action is predicted solely
+from the current observation (plus a very short observation window),
+leading to systematic failure on tasks that require reasoning over
+longer temporal dependencies. The RMBench benchmark
+\cite{rmbench} demonstrates this starkly: mainstream VLAs achieve
+near-zero success on non-Markovian tasks such as pressing a button
+a variable number of times or sequencing multi-step subtasks.
+
+A wave of \emph{memory-aware} VLAs has emerged in 2025--2026 to
+address this gap:
+Mem-0 \cite{rmbench} maintains a triple of anchor, sliding, and key
+memories with a dedicated planner-executor hierarchy;
+MemoryVLA \cite{memoryvla} introduces a perceptual-cognitive dual bank;
+ReMem-VLA \cite{rememvla} proposes dual-level recurrent queries;
+SAM2Act+ \cite{sam2act} adapts the SAM2 video memory for spatial
+tasks; MemER \cite{memer} scales retrieval through VLM-selected
+keyframes; CronusVLA \cite{cronusvla} employs multi-frame feature
+chunking; and MEM \cite{mem} (the component powering
+$\pi_{0.7}$) combines a video encoder with natural-language
+summaries. Despite this activity, three fundamental gaps remain.
+
+\paragraph{Gap 1: fragmented memory modalities.}
+Each existing method targets a single memory type (spatial, semantic,
+keyframe, feature). Combining them yields ad-hoc stacks with no
+shared interface. A practitioner cannot cleanly ``turn on'' long-term
+language memory in Mem-0 without rewriting its planner.
+
+\paragraph{Gap 2: episode-bound memory.}
+All published methods reset memory at episode end, precluding
+``did I already put the knife in the top drawer yesterday?'' style
+queries. Cross-session persistent memory---routine in LLM agents via
+RAG---has not been integrated into VLA stacks.
+
+\paragraph{Gap 3: incomparable benchmarks.}
+MemoryVLA reports 96.5\% on LIBERO-5 but 1.5\% on the extended
+MemoryBench used by ReMem-VLA. RMBench, MemoryBench, MIKASA-Robo, and
+RoboCerebra each carve out a different subset of memory types with
+different evaluation protocols. Cross-paper comparisons are
+unreliable.
+
+\subsection{Contributions.}
+We introduce \method, a unified three-tier memory framework that
+addresses all three gaps. Our design separates memory by time scale
+and modality (\emph{hot} video, \emph{cold} language, \emph{persistent}
+retrieval) and exposes them through a single planner prompt. We ship:
+
+\begin{enumerate}
+  \item A \textbf{semi-structured language memory schema}
+        (Section~\ref{sec:method}) that compresses semantic events
+        into human-readable text round-trippable with an LLM---the
+        first fully interpretable long-term memory for VLAs.
+  \item A \textbf{persistent cross-session store} with FAISS-ready
+        retrieval and pluggable embedders, shippable as an inference
+        hook for any existing VLA planner.
+  \item A \textbf{concrete integration with Mem-0} \cite{rmbench}:
+        only two code edits are required (Section~\ref{sec:method}),
+        making adoption trivial for the broader community.
+  \item A \textbf{synthetic retrieval benchmark}
+        (Section~\ref{sec:experiments}) that verifies cross-session
+        recall using only CPU, and a detailed proposal for
+        \textbf{MNEMO-Bench}, a unified harness that consolidates
+        RMBench, MemoryBench, MIKASA-Robo, and RoboCerebra into a
+        single evaluation protocol with per-memory-type radar scores.
+\end{enumerate}
+
+Our release includes an MIT-licensed Python package
+(\url{https://github.com/asimfish/mnemo-vla}) with 15 passing unit
+tests on CPU, plus comprehensive documentation covering the
+three-tier architecture, the Mem-0 integration, and the MNEMO-Bench
+design. The full VLA training experiments are deferred to a follow-up
+submission once the hot-memory tier is implemented; this paper
+focuses on establishing the primitives, interfaces, and evaluation
+methodology needed to make those experiments meaningful.

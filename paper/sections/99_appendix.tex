@@ -1,0 +1,45 @@
+\section{Reproducibility Checklist}
+\label{app:repro}
+
+\begin{itemize}
+\item Code: \url{https://github.com/asimfish/mnemo-vla} (MIT)
+\item Tests: \texttt{pytest -q tests/} (15 tests, CPU-only)
+\item Quickstart: \texttt{PYTHONPATH=. python examples/quickstart.py}
+\item Dependencies: Python $\geq$ 3.10, numpy $\geq$ 1.24.
+      Optional extras: \texttt{faiss-cpu} for scale,
+      \texttt{sentence-transformers} for semantic retrieval.
+\item No GPU required for primitives; hot-memory and VLA training
+      experiments (deferred to v0.4+) will specify their own
+      requirements.
+\end{itemize}
+
+\section{Language Memory Schema (Formal Grammar)}
+\label{app:grammar}
+
+\begin{verbatim}
+memory      := task_line session_line? subtasks? cross_session? failures?
+task_line   := "[TASK] " <string>
+session_line:= "[SESSION] " <string>
+subtasks    := "[SUBTASKS]" subtask_line+
+subtask_line:= integer "." marker description details?
+marker      := "[X]" | "[>]" | "[ ]" | "[!]"
+details     := "(" <string> ")"
+cross_session := "[CROSS-SESSION]" fact_line+
+fact_line   := "-" content "(source:" session "," "conf=" float ")"
+failures    := "[FAILURES]" failure_line+
+failure_line:= "-" description ("->" intervention)?
+\end{verbatim}
+
+\section{Example Episode Summaries}
+\label{app:examples}
+
+Representative cross-session facts produced by the rule-based
+summarizer include:
+
+\begin{itemize}
+\item \texttt{Task `Organize kitchen tools.' ended with outcome
+      `success'.}
+\item \texttt{Knife is in the top-right drawer. (source:
+      2027-03-10, conf=0.90)}
+\item \texttt{Could not open drawer -> Asked user for help.}
+\end{itemize}

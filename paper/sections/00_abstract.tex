@@ -1,0 +1,35 @@
+Memory is the missing primitive in today's vision-language-action (VLA)
+models for robotic manipulation. Despite rapid progress on
+memory-aware policies such as Mem-0, MemoryVLA, ReMem-VLA, SAM2Act+,
+MemER, and CronusVLA, each method targets a single memory modality
+(e.g., short-term visual buffers or keyframe retrieval) and is
+benchmarked in isolation, making cross-comparison unreliable and
+scaling to truly long-horizon, cross-session tasks elusive. We
+introduce \method, a unified memory framework that organizes memory
+into three complementary tiers: (i) a \emph{hot} short-term video
+buffer for occlusion handling and fine-grained adaptation, (ii) a
+\emph{cold} semi-structured language memory that compresses semantic
+events into human-readable summaries, and (iii) a \emph{persistent}
+cross-session store backed by FAISS-style retrieval for
+remembering-across-days capabilities. The three tiers interact through
+a single hierarchical planner prompt, enabling integration with any
+VLA backbone via small, documented patches. We release a Python
+package that drops the language and persistent tiers into the
+publicly available Mem-0 planner with a two-line change, and we
+accompany the release with a reproducible synthetic retrieval
+benchmark. We propose \textbf{MNEMO-Bench}, a unified evaluation suite
+built by consolidating four existing memory benchmarks
+(RMBench, MemoryBench, MIKASA-Robo, RoboCerebra) into a single
+evaluation harness that reports per-memory-type radar scores,
+resolving the current apples-to-oranges comparison problem. Our
+design makes three concrete contributions: (1) a semi-structured
+language memory schema that round-trips losslessly between LLM text
+and Python objects, offering the first fully interpretable long-term
+memory for VLAs; (2) a drop-in cross-session persistent memory store
+compatible with any existing memory-aware policy; and (3) the
+MNEMO-Bench evaluation protocol along with initial synthetic
+retrieval results showing that even toy embedders already offer
+non-trivial cross-session recall. Full VLA training experiments are
+discussed as the next milestone; the current paper establishes the
+primitives, interfaces, and evaluation methodology required to get
+there.

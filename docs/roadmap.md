@@ -1,20 +1,23 @@
 # MNEMO-VLA Roadmap
 
-## v0.1 (this release) — foundational primitives
+## v0.1 — foundational primitives (shipped)
 
 - [x] `mnemo.language_memory` with text round-trip
 - [x] `mnemo.persistent_memory` with FAISS-ready but numpy-backed store
 - [x] `mnemo.integrations.mem0` adapter + step-by-step guide
 - [x] pytest suite (no GPU, no network)
-- [x] Project docs (README, architecture, this roadmap, papers index)
+- [x] Project docs (README, architecture, roadmap, papers index)
 
-## v0.2 — real embeddings
+## v0.2 — semantic embeddings + retrieval benchmark (current)
 
-- [ ] `SentenceTransformerEmbedder`: sentence-transformers backend
+- [x] `SentenceTransformerEmbedder`: sentence-transformers backend
+- [x] `StackedEmbedder` for combining hashing + semantic signals
+- [x] Synthetic cross-session retrieval benchmark (CPU, <1 s)
+- [x] First empirical retrieval numbers: Recall@1=75\%, Recall@5=95\%
+- [x] AAAI 2027 paper draft (`paper/`) with the above experiments
 - [ ] `QwenVLEmbedder`: reuse Qwen3-VL text encoder for tight alignment
   with Mem-0 / MemER / ReMem-VLA
 - [ ] Optional FAISS-CPU index for N > 50k summaries
-- [ ] Benchmark: retrieval P@1 on synthetic data
 
 ## v0.3 — tactile stream
 

@@ -1,0 +1,60 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Memory-Aware Vision-Language-Action Models}
+
+Memory modules for VLAs can be classified by the \emph{storage form}
+of the memory. \textbf{Explicit buffers} maintain a fixed data
+structure and include Mem-0's three-level anchor/sliding/key
+design \cite{rmbench}, MemoryVLA's perceptual-cognitive dual
+bank \cite{memoryvla}, and SAM2Act+'s SAM2-style object-tracking
+memory \cite{sam2act}. \textbf{Implicit feature memories} collapse
+history into hidden activations, as in CronusVLA's feature
+chunking \cite{cronusvla} and ReMem-VLA's EMA-updated recurrent
+queries \cite{rememvla}. \textbf{Retrieval-based memories} store past
+keyframes or embeddings and retrieve relevant entries at inference
+time, as in MemER \cite{memer} and the MEM system powering
+$\pi_{0.7}$ \cite{mem}. \method\ unifies these by organizing memory
+along two orthogonal axes---time scale (hot/cold/persistent) and
+modality (video/text/retrieval-embedding)---and by exposing all three
+tiers through a single composable prompt rather than as disjoint
+sub-modules.
+
+\subsection{Memory Benchmarks for Manipulation}
+
+\textbf{MemoryBench} \cite{sam2act} introduces three spatial memory
+tasks on RLBench. \textbf{RMBench} \cite{rmbench} proposes the Task
+Memory Complexity (TMC) metric with 9 bimanual tasks spanning $M(1)$
+(remember one past observation) and $M(n)$ categories.
+\textbf{MIKASA-Robo} \cite{mikasa} covers 32 tasks across 12 memory
+types in ManiSkill2, targeting reinforcement learning.
+\textbf{RoboCerebra} \cite{robocerebra} focuses on long-horizon tasks
+averaging 2972 frames, approximately 6$\times$ longer than prior
+work, and evaluates System 2 reasoning. These benchmarks
+collectively probe different memory facets but lack a common
+evaluation protocol. We propose MNEMO-Bench in
+Section~\ref{sec:experiments} as a consolidated harness.
+
+\subsection{Long-Context Models and Retrieval-Augmented Generation}
+
+Outside robotics, long-context language and vision-language models
+such as Claude, Gemini-1.5, and Qwen3-VL \cite{qwen3vl} have
+demonstrated robust reasoning over hundreds of thousands of tokens,
+but remain too expensive to query at the 5--10\,Hz rate required by
+manipulation policies. Retrieval-augmented generation (RAG)
+\cite{lewis2020retrieval} provides a scalable alternative by
+indexing past content in a vector database and retrieving top-K
+matches at inference. \method's persistent tier inherits directly
+from this line of work, specialized to the VLA planner prompt
+structure.
+
+\subsection{Data Generators and Simulation Platforms}
+
+Large-scale synthetic data is critical for memory benchmarks.
+\textbf{RoboTwin 2.0} \cite{robotwin2} provides an MLLM-assisted data
+generation pipeline with five-axis domain randomization across five
+bimanual robots, and is the backbone of RMBench. Related platforms
+include RoboCasa \cite{robocasa}, ManiSkill3 \cite{maniskill3}, and
+LIBERO \cite{libero}. \method\ is platform-agnostic: because it
+operates at the planner prompt level, any simulator or real robot
+that produces subtask annotations can adopt it.

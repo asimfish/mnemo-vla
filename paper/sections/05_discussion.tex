@@ -1,0 +1,65 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{When Does Persistent Memory Help?}
+
+Cross-session memory is most useful for tasks where the relevant
+knowledge is (a) acquired during a previous episode, (b) stable
+over time (e.g., object locations, user preferences), and (c) not
+trivially re-observable. In our analysis of existing memory
+benchmarks (Section~\ref{sec:related}), none of RMBench,
+MemoryBench, MIKASA, or RoboCerebra contains genuine cross-session
+tasks: each task starts from a fresh memory state. We view this as a
+structural gap in evaluation that MNEMO-Bench is designed to close
+through its \emph{cross-session} axis.
+
+\subsection{Interpretability as a First-Class Feature}
+
+A recurrent theme in our design is that memory should be
+\emph{readable}. The semi-structured language format makes failure
+diagnosis straightforward: a developer can dump the cold memory at
+any point during an episode and read it as English. This is a
+stark contrast to dense-embedding memories like MemoryVLA's PCMB
+or ReMem-VLA's recurrent queries, where post-hoc interpretation is
+restricted to attention-heatmap visualization. We argue that
+interpretability is not just a debugging convenience but a
+prerequisite for deployment in safety-critical domains.
+
+\subsection{Limitations}
+
+\paragraph{No hot-memory experiments yet.}
+The current release does not include a hot-memory encoder;
+integration with Mem-0's sliding window suffices for our prompt-level
+experiments. Implementing a MEM-style video encoder with tactile
+fusion is scheduled for v0.3 of the codebase and will enable
+full-policy training experiments.
+
+\paragraph{Embedder choice matters.}
+The toy \texttt{HashingEmbedder} that ships with v0.1 provides only
+modest retrieval quality. Production deployments should replace it
+with a sentence transformer or the text encoder of the underlying
+VLA. We document the substitution clearly and ship the Sentence
+Transformer variant as an optional dependency.
+
+\paragraph{Rule-based summarization ceiling.}
+Our initial episode summarizer uses deterministic rules to extract
+narratives and facts. It is adequate for the interface test-bed but
+lacks the compression and abstraction an LLM-based summarizer would
+provide. v0.2 will add a batched LLM summarizer that maintains the
+deterministic fallback for offline or privacy-sensitive settings.
+
+\paragraph{Benchmark coverage.}
+MNEMO-Bench's v1.0 draft selects representative tasks from each of
+the four source benchmarks, but the exact selection remains
+calibrated empirically. We will release the task selection criteria
+and an open leaderboard with the camera-ready.
+
+\subsection{Ethical Considerations}
+
+Persistent memory raises unique safety concerns: a robot that
+remembers user interactions across sessions must handle
+privacy-sensitive information responsibly. Our schema captures
+facts with explicit provenance and confidence, enabling
+session-scoped redaction and audit logging. We document a
+redaction toolkit in the appendix and recommend opt-in memory for
+consumer deployments.
