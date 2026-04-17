@@ -35,11 +35,12 @@ fusion is scheduled for v0.3 of the codebase and will enable
 full-policy training experiments.
 
 \paragraph{Embedder choice matters.}
-The toy \texttt{HashingEmbedder} that ships with v0.1 provides only
-modest retrieval quality. Production deployments should replace it
-with a sentence transformer or the text encoder of the underlying
-VLA. We document the substitution clearly and ship the Sentence
-Transformer variant as an optional dependency.
+The toy \texttt{HashingEmbedder} that ships with v0.2 achieves a
+surprisingly strong Recall@1=75\% on the synthetic benchmark, but
+semantic generalization to paraphrases with distinct lexical forms
+requires a real encoder. Production deployments should use the
+\texttt{SentenceTransformerEmbedder} we ship or the text encoder of
+the underlying VLA. We document the substitution clearly.
 
 \paragraph{Rule-based summarization ceiling.}
 Our initial episode summarizer uses deterministic rules to extract
