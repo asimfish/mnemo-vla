@@ -14,6 +14,44 @@ integration, respectively.
 
 Figure~\ref{fig:architecture} shows the three-tier design.
 
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  node distance=4mm,
+  box/.style={draw, rounded corners, minimum width=42mm,
+              minimum height=9mm, align=center, font=\small},
+  tier/.style={box, fill=blue!4},
+  store/.style={box, fill=teal!6},
+  arrow/.style={-latex, thick},
+]
+
+\node[box, fill=yellow!10] (obs) {Current Observation};
+\node[tier, below=of obs] (hot) {\textbf{Hot} (seconds)\\video + tactile buffer};
+\node[tier, below=of hot] (cold) {\textbf{Cold} (minutes)\\language memory};
+\node[store, below=of cold] (persist) {\textbf{Persistent} (days)\\FAISS summary store};
+
+\node[box, fill=orange!8, right=12mm of cold] (planner)
+  {Hierarchical Planner\\(Qwen3-VL)};
+\node[box, fill=orange!8, below=of planner] (exec)
+  {Executor + \\SubtaskEnd Classifier};
+\node[box, fill=yellow!10, below=of exec] (action) {Action Chunk};
+
+\draw[arrow] (obs) -- (hot);
+\draw[arrow] (hot) -- (cold);
+\draw[arrow] (cold) -- (persist);
+\draw[arrow] (hot.east) -- (planner.west);
+\draw[arrow] (cold.east) -- (planner.west);
+\draw[arrow] (persist.east) -- (planner.west);
+\draw[arrow] (planner) -- (exec);
+\draw[arrow] (exec) -- (action);
+
+\end{tikzpicture}
+\caption{\method's three-tier memory design. Hot, cold, and persistent
+tiers separate short-term, medium-term, and cross-session memory
+respectively, and converge into a single planner prompt.}
+\label{fig:architecture}
+\end{figure}
+
 \begin{itemize}
 \item \textbf{Hot memory (seconds)}: a short-term video/sensor buffer
       such as the sliding window of Mem-0 or the sparse-attention

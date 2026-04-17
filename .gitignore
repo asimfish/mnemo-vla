@@ -47,3 +47,14 @@ persistent_memory_store/
 !tests/**/*.jsonl
 *.npy
 !tests/**/*.npy
+
+# LaTeX build artifacts (keep the .pdf but drop intermediates)
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.toc
